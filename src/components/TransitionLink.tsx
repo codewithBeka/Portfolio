@@ -1,6 +1,5 @@
 "use client";
-import { usePathname, useRouter } from "next/navigation";
-import { animatePageOut } from "@/utils/animations";
+import { usePathname } from "next/navigation";
 
 interface Props {
   href: string;
@@ -9,13 +8,11 @@ interface Props {
 }
 
 const TransitionLink = ({ href, label, closeMenu }: Props) => {
-  const router = useRouter();
   const pathname = usePathname();
 
   const handleClick = () => {
     if (pathname !== href) {
       closeMenu(); // Close the menu when navigating
-      animatePageOut(href, router);
     }
   };
 
