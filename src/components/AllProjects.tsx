@@ -8,6 +8,7 @@ import { useGetCategoriesQuery } from "@/app/redux/api/categoryService";
 import Link from "next/link";
 import bg from "@/assets/images/bg.png";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import SkeletonLoader from "./ui/SkeletonLoader";
 
 // Define types for Project and Category
 interface Technology {
@@ -86,7 +87,7 @@ const AllProjects: React.FC = () => {
 
   // Loading states
   if (projectsLoading || categoriesLoading) {
-    return <div>Loading...</div>; // You can use skeletons or placeholders here
+    return <SkeletonLoader />; // Use SkeletonLoader while loading
   }
 
   // Error handling
