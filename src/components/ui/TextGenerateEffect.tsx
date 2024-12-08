@@ -4,7 +4,7 @@ import { motion, stagger, useAnimate } from "framer-motion";
 import { cn } from "@/lib/cs";
 import useIsLargeScreen from "@/utils/useIsLargeScreen";
 
-export const TextGenerateEffect = React.memo(
+const TextGenerateEffect = React.memo(
   ({ words, className }: { words: string; className?: string }) => {
     const [scope, animate] = useAnimate();
     const wordsArray = words.split(" ");
@@ -30,8 +30,8 @@ export const TextGenerateEffect = React.memo(
         ))}
       </motion.div>
     );
+
     const renderSmallScreenText = () => {
-      // Define the words to be displayed normally and the part to be styled
       const normalWords = wordsArray.slice(0, -2).join(" ");
       const highlightedWords = wordsArray.slice(-2).join(" ");
 
@@ -41,6 +41,7 @@ export const TextGenerateEffect = React.memo(
         </span>
       );
     };
+
     return (
       <div className={cn("font-bold", className)} aria-live="polite">
         <div className="my-4">
@@ -52,3 +53,8 @@ export const TextGenerateEffect = React.memo(
     );
   }
 );
+
+// Add display name
+TextGenerateEffect.displayName = "TextGenerateEffect";
+
+export default TextGenerateEffect;
