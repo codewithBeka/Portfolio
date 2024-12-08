@@ -37,7 +37,8 @@ const AllProjects: React.FC<AllProjectsProps> = ({ categories }) => {
           ? `&categoryName=${encodeURIComponent(category)}`
           : "";
       const res = await fetch(
-        `https://codewithbeka.onrender.com/api/projects?page=${page}&limit=${limit}${categoryQuery}`
+        `https://codewithbeka.onrender.com/api/projects?page=${page}&limit=${limit}${categoryQuery}`,
+        { cache: "force-cache", credentials: "include" }
       );
 
       if (!res.ok) {
