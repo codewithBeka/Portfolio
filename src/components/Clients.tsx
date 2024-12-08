@@ -2,15 +2,14 @@
 
 import React from "react";
 import { InfiniteMovingCards } from "./ui/InfiniteCards";
-import { useGetAllTestimonialsQuery } from "@/app/redux/api/testimonialsApi";
 
-const Clients = () => {
-  const {
-    data: testimonials,
-    error,
-    isLoading,
-  } = useGetAllTestimonialsQuery(undefined);
+type Props = {
+  testimonials: any[]; // Adjust type according to your testimonials structure
+  isLoading?: boolean;
+  error?: string;
+};
 
+const Clients: React.FC<Props> = ({ testimonials, isLoading, error }) => {
   if (isLoading) {
     return (
       <section id="testimonials" className="py-20">
@@ -41,7 +40,7 @@ const Clients = () => {
           <span className="text-purple"> satisfied clients</span>
         </h1>
         <div className="flex flex-col items-center max-lg:mt-10">
-          <p className="text-red-500">Error fetching testimonials</p>
+          <p className="text-red-500">{error}</p>
         </div>
       </section>
     );

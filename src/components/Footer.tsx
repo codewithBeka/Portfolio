@@ -13,6 +13,7 @@ const Footer = () => {
           width={1920}
           height={1080}
           className="w-full h-full opacity-50"
+          priority
         />
       </div>
 
@@ -35,7 +36,8 @@ const Footer = () => {
                 alt="social media icon"
                 width={20}
                 height={20}
-                className="w-auto h-auto" // Maintain aspect ratio
+                className="w-auto h-auto"
+                priority // Maintain aspect ratiop
               />
             </Link>
           ))}

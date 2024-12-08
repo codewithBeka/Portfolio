@@ -1,6 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import gsap from "gsap";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -12,7 +11,6 @@ type Props = {};
 
 function Navbar({}: Props) {
   const [isToggleMenu, setIsToggleMenu] = useState(false);
-  const timeline = gsap.timeline();
 
   const navData = [
     { id: 1, title: "Home", href: "/" },
@@ -23,6 +21,7 @@ function Navbar({}: Props) {
   ];
   const toggleMenu = () => {
     setIsToggleMenu((prevOpen) => !prevOpen);
+    console.log("yes");
   };
   const closeMenu = () => {
     setIsToggleMenu(false);
@@ -113,7 +112,7 @@ function Navbar({}: Props) {
   // };
 
   return (
-    <header className="bg-transparent py-5 px-4  top-0 fixed w-full z-20 ">
+    <header className="bg-transparent py-5 px-4  top-0 fixed w-full z-50 ">
       <div className="w-full flex justify-between items-center max-w-7xl mx-auto">
         <Link href="/" className="flex items-center gap-2">
           <Image
@@ -122,6 +121,7 @@ function Navbar({}: Props) {
             width={48} // Set the desired width (12 * 4)
             height={48} // Set the desired height (12 * 4)
             className="object-contain h-12 w-12 rounded-full"
+            priority
           />
           <p className="text-white text-[18px] font-bold cursor-pointer flex ">
             Bereket &nbsp;
@@ -140,24 +140,7 @@ function Navbar({}: Props) {
           </button>
         </div>
       </div>
-      {/* {isToggleMenu && (
-        <div className="main_menu absolute  h-screen   w-screen flex justify-center items-center z-30 ">
-          <div className="overlay absolute bg-yellow-400 w-1/2 h-0">
-            <div className="absolute text-[19vw]  md:text-[12vw] lg:text-[7vw] xl:text-[5.6vw] bottom-10 left-0 overflow-hidden w-full">
-              <div className="flex-col flex w-full">
-                {navData.map((item) => (
-                  <TransitionLink
-                    key={item.id}
-                    label={item.title}
-                    href={item.href}
-                    closeMenu={closeMenu}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}{" "} */}
+
       <AnimatePresence>
         {isToggleMenu && (
           <motion.div
@@ -165,7 +148,7 @@ function Navbar({}: Props) {
             initial="initial"
             animate="animate"
             exit="exit"
-            className="fixed left-0 top-0 w-full h-screen origin-top bg-yellow-400 text-black p-10"
+            className="fixed left-0 top-0 z-100 w-full h-screen origin-top bg-yellow-400 text-black p-10"
           >
             <div className="flex h-full flex-col">
               <div className="flex justify-between">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useMemo } from "react";
 import { motion } from "framer-motion";
 import DottedMap from "dotted-map";
 import Image from "next/image";
@@ -16,16 +16,20 @@ interface MapProps {
 
 export function WorldMap({ dots = [], lineColor = "#0ea5e9" }: MapProps) {
   const svgRef = useRef<SVGSVGElement>(null);
-  const map = new DottedMap({ height: 300, grid: "diagonal" });
-
+  const map = useMemo(
+    () => new DottedMap({ height: 300, grid: "diagonal" }),
+    []
+  );
   const { theme } = useTheme();
 
-  const svgMap = map.getSVG({
-    radius: 0.22,
-    color: "#FFFFFF",
-    shape: "circle",
-    backgroundColor: "transparent",
-  });
+  const svgMap = useMemo(() => {
+    return map.getSVG({
+      radius: 0.22,
+      color: "#FFFFFF",
+      shape: "circle",
+      backgroundColor: "transparent",
+    });
+  }, [map]);
 
   const projectPoint = (lat: number, lng: number) => {
     const x = (lng + 180) * (800 / 360);
@@ -43,7 +47,7 @@ export function WorldMap({ dots = [], lineColor = "#0ea5e9" }: MapProps) {
   };
 
   return (
-    <div className="w-full h-[320px] aspect-[2/1]  rounded-lg  relative font-sans">
+    <div className="w-full h-[320px] aspect-[2/1] rounded-lg relative font-sans">
       <Image
         src={`data:image/svg+xml;utf8,${encodeURIComponent(svgMap)}`}
         className="h-full w-full [mask-image:linear-gradient(to_bottom,transparent,white_10%,white_90%,transparent)] pointer-events-none select-none"
@@ -67,19 +71,14 @@ export function WorldMap({ dots = [], lineColor = "#0ea5e9" }: MapProps) {
                 fill="none"
                 stroke="url(#path-gradient)"
                 strokeWidth="1"
-                initial={{
-                  pathLength: 0,
-                }}
-                animate={{
-                  pathLength: 1,
-                }}
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
                 transition={{
                   duration: 1,
                   delay: 0.5 * i,
                   ease: "easeOut",
                 }}
-                key={`start-upper-${i}`}
-              ></motion.path>
+              />
             </g>
           );
         })}
@@ -93,18 +92,20 @@ export function WorldMap({ dots = [], lineColor = "#0ea5e9" }: MapProps) {
           </linearGradient>
         </defs>
 
-        {dots.map((dot, i) => (
-          <g key={`points-group-${i}`}>
-            <g key={`start-${i}`}>
+        {dots.map((dot, i) => {
+          const startPoint = projectPoint(dot.start.lat, dot.start.lng);
+          const endPoint = projectPoint(dot.end.lat, dot.end.lng);
+          return (
+            <g key={`points-group-${i}`}>
               <circle
-                cx={projectPoint(dot.start.lat, dot.start.lng).x}
-                cy={projectPoint(dot.start.lat, dot.start.lng).y}
+                cx={startPoint.x}
+                cy={startPoint.y}
                 r="2"
                 fill={lineColor}
               />
               <circle
-                cx={projectPoint(dot.start.lat, dot.start.lng).x}
-                cy={projectPoint(dot.start.lat, dot.start.lng).y}
+                cx={startPoint.x}
+                cy={startPoint.y}
                 r="2"
                 fill={lineColor}
                 opacity="0.5"
@@ -114,7 +115,6 @@ export function WorldMap({ dots = [], lineColor = "#0ea5e9" }: MapProps) {
                   from="2"
                   to="8"
                   dur="1.5s"
-                  begin="0s"
                   repeatCount="indefinite"
                 />
                 <animate
@@ -122,21 +122,13 @@ export function WorldMap({ dots = [], lineColor = "#0ea5e9" }: MapProps) {
                   from="0.5"
                   to="0"
                   dur="1.5s"
-                  begin="0s"
                   repeatCount="indefinite"
                 />
               </circle>
-            </g>
-            <g key={`end-${i}`}>
+              <circle cx={endPoint.x} cy={endPoint.y} r="2" fill={lineColor} />
               <circle
-                cx={projectPoint(dot.end.lat, dot.end.lng).x}
-                cy={projectPoint(dot.end.lat, dot.end.lng).y}
-                r="2"
-                fill={lineColor}
-              />
-              <circle
-                cx={projectPoint(dot.end.lat, dot.end.lng).x}
-                cy={projectPoint(dot.end.lat, dot.end.lng).y}
+                cx={endPoint.x}
+                cy={endPoint.y}
                 r="2"
                 fill={lineColor}
                 opacity="0.5"
@@ -146,7 +138,6 @@ export function WorldMap({ dots = [], lineColor = "#0ea5e9" }: MapProps) {
                   from="2"
                   to="8"
                   dur="1.5s"
-                  begin="0s"
                   repeatCount="indefinite"
                 />
                 <animate
@@ -154,13 +145,12 @@ export function WorldMap({ dots = [], lineColor = "#0ea5e9" }: MapProps) {
                   from="0.5"
                   to="0"
                   dur="1.5s"
-                  begin="0s"
                   repeatCount="indefinite"
                 />
               </circle>
             </g>
-          </g>
-        ))}
+          );
+        })}
       </svg>
     </div>
   );

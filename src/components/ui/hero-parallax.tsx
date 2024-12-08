@@ -109,8 +109,8 @@ export const Header = () => {
         The Ultimate <br /> Real Projects
       </h1>
       <p className="max-w-2xl text-base md:text-xl mt-8 dark:text-neutral-200">
-        Showcasing production-ready projects that redefine user experiences. Our
-        skilled team leverages the latest technologies to build impactful
+        Showcasing production-ready projects that redefine user experiences. As
+        skilled Developer I leverages the latest technologies to build impactful
         applications that meet real-world needs.
       </p>
     </div>

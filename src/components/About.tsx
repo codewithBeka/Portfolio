@@ -32,6 +32,7 @@ const About = () => {
               src={me}
               alt="grid-1"
               className="w-full sm:h-[276px] h-fit object-contain"
+              priority
             />
 
             <div>
@@ -61,6 +62,7 @@ const About = () => {
               src={teck}
               alt="grid-2"
               className="w-full sm:h-[276px] h-fit object-contain"
+              priority
             />
 
             <div>
@@ -151,12 +153,13 @@ const About = () => {
               src={grid4}
               alt="grid-4"
               className="w-full md:h-[126px] sm:h-[276px] h-fit object-cover sm:object-top"
+              priority
             />
 
             <div className="space-y-2">
               <p className="grid-subtext text-center">Contact me</p>
               <div className="copy-container">
-                <Image src={copy} alt="copy" />
+                <Image src={copy} alt="copy" priority />
                 <p className="lg:text-2xl md:text-xl font-medium text-gray_gradient text-white">
                   walebereket37@gmail.com
                 </p>

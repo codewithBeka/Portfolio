@@ -1,6 +1,5 @@
 "use client";
 
-import { useGetAllSkillsQuery } from "@/app/redux/api/skillsApi";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/dist/ScrollTrigger";
@@ -20,16 +19,14 @@ type Skill = {
 };
 
 type Props = {
+  skills: Skill[]; // Receive skills as a prop
   isReversed?: boolean;
   className?: string;
 };
 
-const Marquee: FC<Props> = ({ isReversed = false, className }) => {
+const Marquee: FC<Props> = ({ skills, isReversed = false, className }) => {
   const movingContainer = useRef<HTMLDivElement>(null);
   const timeline = useRef<GSAPTimeline>();
-
-  // Call the query without an argument
-  const { data: skills, isLoading, error } = useGetAllSkillsQuery(undefined);
 
   useGSAP(
     () => {
@@ -75,7 +72,7 @@ const Marquee: FC<Props> = ({ isReversed = false, className }) => {
 
   // Use useMemo to optimize rendering
   const list = useMemo(() => {
-    if (isLoading) {
+    if (!skills || skills.length === 0) {
       return (
         <div className="flex w-fit items-center gap-10">
           {/* Skeleton loading effect */}
@@ -87,10 +84,6 @@ const Marquee: FC<Props> = ({ isReversed = false, className }) => {
           ))}
         </div>
       );
-    }
-
-    if (error || !skills) {
-      return <div className="text-red-500">Error loading technologies.</div>;
     }
 
     const technologies = skills.flatMap((skill: Skill) => skill.technologies);
@@ -114,13 +107,14 @@ const Marquee: FC<Props> = ({ isReversed = false, className }) => {
                 height={40}
                 width={40}
                 className="object-contain"
+                priority
               />
             </div>
           );
         })}
       </div>
     );
-  }, [skills, isLoading, error]);
+  }, [skills]);
 
   return (
     <div

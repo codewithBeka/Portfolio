@@ -7,6 +7,7 @@ import { FaLocationArrow } from "react-icons/fa6";
 import { Vortex } from "./ui/vortex";
 import { useSendMessageMutation } from "@/app/redux/api/messagesApi";
 import MagicButton from "./MagicButton";
+import useIsLargeScreen from "@/utils/useIsLargeScreen";
 
 interface FormData {
   name: string;
@@ -18,6 +19,8 @@ const Contact: React.FC = () => {
   const formRef = useRef<HTMLFormElement>(null);
   const { alert, showAlert, hideAlert } = useAlert();
   const [loading, setLoading] = useState<boolean>(false);
+  const isLargeScreen = useIsLargeScreen(768);
+
   const [form, setForm] = useState<FormData>({
     name: "",
     email: "",
@@ -69,26 +72,46 @@ const Contact: React.FC = () => {
     <section className="c-space my-20" id="contact">
       {alert.show && <Alert {...alert} onClose={handleCloseAlert} />}
 
-      <Vortex
-        backgroundColor="transparent"
-        className="flex items-center flex-col justify-center px-2 md:px-10 py-4 w-full h-full"
-      >
-        <h1 className="heading lg:max-w-[48vw]">
-          Ready to take <span className="text-purple">your</span> digital
-          presence to the next level?
-        </h1>
-        <p className="text-white-200 md:mt-10 my-5 text-center">
-          Reach out to me today and let's discuss how I can help you achieve
-          your goals.
-        </p>
-        <a href="mailto:contact@jsmastery.pro">
-          <MagicButton
-            title="Let's get in touch"
-            icon={<FaLocationArrow />}
-            position="right"
-          />
-        </a>
-      </Vortex>
+      {isLargeScreen ? (
+        <Vortex
+          backgroundColor="transparent"
+          className="flex items-center flex-col justify-center px-2 md:px-10 py-4 w-full h-full"
+        >
+          <h1 className="heading lg:max-w-[48vw]">
+            Ready to take <span className="text-purple">your</span> digital
+            presence to the next level?
+          </h1>
+          <p className="text-white-200 md:mt-10 my-5 text-center">
+            Reach out to me today and let's discuss how I can help you achieve
+            your goals.
+          </p>
+          <a href="mailto:contact@jsmastery.pro">
+            <MagicButton
+              title="Let's get in touch"
+              icon={<FaLocationArrow />}
+              position="right"
+            />
+          </a>
+        </Vortex>
+      ) : (
+        <div className="flex items-center flex-col justify-center px-2 md:px-10 py-4 w-full h-full bg-transparent">
+          <h1 className="heading lg:max-w-[48vw]">
+            Ready to take <span className="text-purple">your</span> digital
+            presence to the next level?
+          </h1>
+          <p className="text-white-200 md:mt-10 my-5 text-center">
+            Reach out to me today and let's discuss how I can help you achieve
+            your goals.
+          </p>
+          <a href="mailto:contact@jsmastery.pro">
+            <MagicButton
+              title="Let's get in touch"
+              icon={<FaLocationArrow />}
+              position="right"
+            />
+          </a>
+        </div>
+      )}
 
       <div className="relative min-h-screen flex items-center justify-center flex-col">
         <div className="contact-container">

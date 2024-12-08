@@ -217,6 +217,7 @@ export const Compare = ({
                 width={1200}
                 height={600}
                 draggable={false}
+                priority
               />
             </motion.div>
           ) : null}

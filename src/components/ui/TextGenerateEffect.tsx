@@ -1,40 +1,27 @@
 "use client";
-
-import { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, stagger, useAnimate } from "framer-motion";
 import { cn } from "@/lib/cs";
+import useIsLargeScreen from "@/utils/useIsLargeScreen";
 
-export const TextGenerateEffect = ({
-  words,
-  className,
-}: {
-  words: string;
-  className?: string;
-}) => {
-  const [scope, animate] = useAnimate();
-  const wordsArray = words.split(" "); // Use const for better practice
+export const TextGenerateEffect = React.memo(
+  ({ words, className }: { words: string; className?: string }) => {
+    const [scope, animate] = useAnimate();
+    const wordsArray = words.split(" ");
+    const isLargeScreen = useIsLargeScreen(768); // Define your threshold here
 
-  useEffect(() => {
-    console.log(wordsArray);
-    animate(
-      "span",
-      {
-        opacity: 1,
-      },
-      {
-        duration: 2,
-        delay: stagger(0.2),
-      }
-    );
-  }, [animate, wordsArray]); // Include animate and wordsArray in dependencies
+    useEffect(() => {
+      if (!isLargeScreen) return; // Skip animation on small screens
+      if (wordsArray.length === 0) return; // Early return if no words
+      animate("span", { opacity: 1 }, { duration: 0.5, delay: stagger(0.1) });
+    }, [animate, wordsArray, isLargeScreen]);
 
-  const renderWords = () => {
-    return (
+    const renderWords = () => (
       <motion.div ref={scope}>
         {wordsArray.map((word, idx) => (
           <motion.span
-            key={word + idx}
-            className={` ${
+            key={`${word}-${idx}`} // Use a more unique key
+            className={`${
               idx > 3 ? "text-purple" : "dark:text-white text-black"
             } opacity-0`}
           >
@@ -43,17 +30,25 @@ export const TextGenerateEffect = ({
         ))}
       </motion.div>
     );
-  };
+    const renderSmallScreenText = () => {
+      // Define the words to be displayed normally and the part to be styled
+      const normalWords = wordsArray.slice(0, -2).join(" ");
+      const highlightedWords = wordsArray.slice(-2).join(" ");
 
-  return (
-    <div className={cn("font-bold", className)}>
-      <div className="my-4">
-        {" "}
-        {/* Changed mt-4 to my-4 */}
-        <div className="dark:text-white text-black leading-snug tracking-wide">
-          {renderWords()}
+      return (
+        <span>
+          {normalWords} <span className="text-purple">{highlightedWords}</span>
+        </span>
+      );
+    };
+    return (
+      <div className={cn("font-bold", className)} aria-live="polite">
+        <div className="my-4">
+          <div className="dark:text-white text-black leading-snug tracking-wide">
+            {isLargeScreen ? renderWords() : renderSmallScreenText()}
+          </div>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  }
+);

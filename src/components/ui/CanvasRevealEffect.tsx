@@ -208,8 +208,7 @@ const ShaderMaterial = ({
     timeLocation.value = timestamp;
   });
 
-  // Wrap getUniforms with useCallback
-  const getUniforms = React.useCallback(() => {
+  const getUniforms = () => {
     const preparedUniforms: any = {};
 
     for (const uniformName in uniforms) {
@@ -253,7 +252,7 @@ const ShaderMaterial = ({
       value: new THREE.Vector2(size.width * 2, size.height * 2),
     }; // Initialize u_resolution
     return preparedUniforms;
-  }, [size.width, size.height, uniforms]);
+  };
 
   // Shader material
   const material = useMemo(() => {
@@ -280,7 +279,7 @@ const ShaderMaterial = ({
     });
 
     return materialObject;
-  }, [size.width, size.height, source, getUniforms]); // Include getUniforms as a dependency
+  }, [size.width, size.height, source]);
 
   return (
     <mesh ref={ref as any}>

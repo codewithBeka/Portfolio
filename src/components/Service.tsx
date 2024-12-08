@@ -1,6 +1,8 @@
+"use client";
 import React from "react";
 import { Meteors } from "./ui/meteors";
 import { FlipWords } from "./ui/flip-words";
+import useIsLargeScreen from "../utils/useIsLargeScreen";
 
 const services = [
   {
@@ -26,16 +28,17 @@ const services = [
 ];
 
 export function Service() {
+  const isLargeScreen = useIsLargeScreen(768);
   const words = ["Backend", "Frontend", "UI/UX", "Mobile APP"];
-
   return (
     <section className="c-space my-20" id="service">
       <h1 className="heading mb-[2rem]">
-        My Services{" "}
-        <span className="text-purple">
-          {" "}
-          <FlipWords words={words} />
-        </span>
+        My Services
+        {isLargeScreen && (
+          <span className="text-purple">
+            <FlipWords words={words} />
+          </span>
+        )}
       </h1>
       <div className="flex flex-wrap justify-center gap-6 p-6 mb-12">
         {services.map((service, index) => (
@@ -58,21 +61,17 @@ export function Service() {
                   />
                 </svg>
               </div>
-
-              <h1 className="font-bold text-xl text-white mb-4 relative z-50">
+              <h1 className="font-bold text-xl text-white mb-4 relative z-20">
                 {service.title}
               </h1>
-
-              <p className="font-normal text-base text-slate-500 mb-4 relative z-50">
+              <p className="font-normal text-base text-slate-500 mb-4 relative z-20">
                 {service.description}
               </p>
-
               <button className="border px-4 py-1 rounded-lg border-gray-500 text-gray-300">
                 Explore
               </button>
-
               {/* Meaty part - Meteor effect */}
-              <Meteors number={20} />
+              {isLargeScreen && <Meteors number={20} />}
             </div>
           </div>
         ))}

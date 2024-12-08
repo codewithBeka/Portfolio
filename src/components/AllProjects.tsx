@@ -1,125 +1,108 @@
 "use client";
+
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { FaLocationArrow } from "react-icons/fa6";
 import { PinContainer } from "./ui/Pin";
-import { useGetProjectsQuery } from "@/app/redux/api/projectService";
-import { useGetCategoriesQuery } from "@/app/redux/api/categoryService";
 import Link from "next/link";
 import bg from "@/assets/images/bg.png";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import SkeletonLoader from "./ui/SkeletonLoader";
+import { Category, Project } from "@/utils/types";
 
-// Define types for Project and Category
-interface Technology {
-  image: string;
+interface AllProjectsProps {
+  categories: Category[];
 }
 
-interface Category {
-  name: string;
-}
+const AllProjects: React.FC<AllProjectsProps> = ({ categories }) => {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [activeFilter, setActiveFilter] = useState<string>("All");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null); // Error state
 
-export interface Project {
-  _id: string;
-  title: string;
-  description: string;
-  simpleDescription: string;
-  media: { url: string }[];
-  category: Category; // Adjust this if the structure is different
-  technologies: Technology[];
-}
+  const limit = 4; // Number of projects to display per request
 
-const AllProjects: React.FC = () => {
-  const [activeFilter, setActiveFilter] = useState<string | undefined>("All");
-  const [currentPage, setCurrentPage] = useState<number>(1); // Track current page
-  const [allProjects, setAllProjects] = useState<Project[]>([]); // New state to hold all projects
+  /**
+   * Fetch projects from the API
+   */
+  const fetchProjects = async (page: number, category: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      console.log(
+        `Fetching projects for page ${page} and category: ${category}`
+      ); // Debug log
+      const categoryQuery =
+        category !== "All"
+          ? `&categoryName=${encodeURIComponent(category)}`
+          : "";
+      const res = await fetch(
+        `https://codewithbeka.onrender.com/api/projects?page=${page}&limit=${limit}${categoryQuery}`
+      );
 
-  const limit = 4; // Number of projects to fetch per request
-  console.log("Active Filter:", activeFilter);
-  // Fetch projects and categories from the API
-  const {
-    data: projectsData,
-    error: projectsError,
-    isLoading: projectsLoading,
-  } = useGetProjectsQuery({
-    categoryName: activeFilter === "All" ? undefined : activeFilter, // Handle "All" case
-    page: currentPage,
-    limit,
-  });
+      if (!res.ok) {
+        throw new Error(`Failed to fetch projects. Status: ${res.status}`);
+      }
 
-  useEffect(() => {
-    if (projectsData) {
-      setAllProjects((prevProjects) => [
-        ...prevProjects,
-        ...projectsData.projects.filter(
-          (newProject: Project) =>
-            !prevProjects.some(
-              (prevProject) => prevProject._id === newProject._id
-            )
-        ),
-      ]);
+      const data = await res.json();
+      console.log("API response:", data); // Debug log
+      return data.projects || [];
+    } catch (error) {
+      console.error("Error fetching projects:", error); // Debug log
+      setError("Failed to fetch projects. Please try again ."); // Set error message
+
+      return [];
+    } finally {
+      setIsLoading(false);
     }
-  }, [projectsData]);
-  const {
-    data: categories = [],
-    error: categoriesError,
-    isLoading: categoriesLoading,
-  } = useGetCategoriesQuery(undefined); // Fetch categories without parameters
-
-  const handleFilterChange = (filter: string) => {
-    setActiveFilter(filter === "All" ? undefined : filter);
-    setCurrentPage(1);
-    setAllProjects([]); // Reset projects when filter changes
   };
 
-  // Error handling function
-  const getErrorMessage = (error: any): string => {
-    if (error && "status" in error) {
-      const fetchError = error as FetchBaseQueryError;
-      return fetchError.data
-        ? JSON.stringify(fetchError.data)
-        : "An error occurred.";
-    } else if (error && "message" in error) {
-      return error.message;
-    }
-    return "An unknown error occurred.";
+  /**
+   * Load projects when the component mounts or the filter changes
+   */
+  useEffect(() => {
+    const loadProjects = async () => {
+      console.log("Active filter changed:", activeFilter); // Debug log
+      const fetchedProjects = await fetchProjects(1, activeFilter);
+      setProjects(fetchedProjects);
+      setCurrentPage(1); // Reset page to 1 when the filter changes
+    };
+    loadProjects();
+  }, [activeFilter]);
+
+  /**
+   * Handle "See More" button click
+   */
+  const handleSeeMore = async () => {
+    const nextPage = currentPage + 1;
+    console.log(`Loading more projects for page ${nextPage}`); // Debug log
+    const newProjects = await fetchProjects(nextPage, activeFilter);
+    setProjects((prev) => [...prev, ...newProjects]); // Append new projects
+    setCurrentPage(nextPage); // Increment the page
+  };
+
+  /**
+   * Handle category filter change
+   */
+  const handleFilterChange = (filter: string) => {
+    console.log(`Filter changed to: ${filter}`); // Debug log
+    setActiveFilter(filter);
+    setIsLoading(true);
   };
 
   // Loading states
-  if (projectsLoading || categoriesLoading) {
-    return <SkeletonLoader />; // Use SkeletonLoader while loading
+  if (isLoading && projects.length === 0) {
+    console.log("Loading projects for the first time..."); // Debug log
+    return <SkeletonLoader />; // Show loader while fetching projects
   }
-
-  // Error handling
-  if (projectsError) {
-    console.error("Error fetching projects:", projectsError);
-    return (
-      <div className="text-red-500 text-center">
-        Error fetching projects: {getErrorMessage(projectsError)}
-      </div>
-    );
-  }
-
-  if (categoriesError) {
-    console.error("Error fetching categories:", categoriesError);
-    return (
-      <div className="text-red-500 text-center">
-        Error fetching categories: {getErrorMessage(categoriesError)}
-      </div>
-    );
-  }
-
-  // Extract projects and total count from the fetched data
-  const { projects = [], totalCount = 0 } = projectsData || {};
 
   return (
-    <div className="py-20" id="projects">
+    <section className="py-20 z-20" id="projects">
       <h1 className="heading">
         A robust selection of <span className="text-purple">All projects</span>
       </h1>
-
       <div className="flex flex-wrap justify-center items-center my-16">
-        {["All", ...categories.map((category: Category) => category.name)].map(
+        {["All", ...categories.map((category) => category.name)].map(
           (item, index) => (
             <div
               key={index}
@@ -140,25 +123,25 @@ const AllProjects: React.FC = () => {
           )
         )}
       </div>
-
-      <div className="flex flex-wrap items-center justify-center p-4 gap-14 mt-3">
-        {allProjects.map((project: Project) => (
+      <div className="flex   flex-wrap items-center justify-center p-4 gap-14 md:gap-16 mt-3 md:mt-6">
+        {projects.map((project) => (
           <div
             key={project._id}
-            className="lg:min-h-[32.5rem] h-[25rem] flex items-center justify-center sm:w-96 w-[80vw]"
+            className="lg:min-h-[32.5rem] md:mb-12 h-[25rem] flex items-center justify-center sm:w-96 w-[80vw]"
           >
             <PinContainer>
-              <div className="relative flex items-center justify-center sm:w-96 w-[80vw] overflow-hidden h-[20vh] lg:h-[30vh] mb-10">
+              <div className="relative flex items-center justify-center sm:w-96 w-[80vw]  overflow-hidden sm:h-[30vh] md:h-[25vh]  h-[30vh] xl:h-[35vh]  mb-10">
                 <div
-                  className="relative w-full h-full overflow-hidden lg:rounded-3xl"
+                  className="relative w-full h-full  overflow-hidden lg:rounded-3xl"
                   style={{ backgroundColor: "#13162D" }}
                 >
                   <Image
                     src={bg}
-                    alt="bgimg"
+                    alt="background"
                     layout="fill"
                     objectFit="cover"
-                    className="z-0"
+                    className="z-0 "
+                    priority
                   />
                 </div>
 
@@ -168,6 +151,7 @@ const AllProjects: React.FC = () => {
                   layout="fill"
                   objectFit="contain"
                   className="z-10 absolute bottom-0"
+                  priority
                 />
               </div>
 
@@ -178,7 +162,7 @@ const AllProjects: React.FC = () => {
                 className="lg:text-xl lg:font-normal font-light text-sm line-clamp-2"
                 style={{ color: "#BEC1DD", margin: "1vh 0" }}
               >
-                {project?.simpleDescription}
+                {project.simpleDescription}
               </p>
 
               <div className="flex items-center justify-between mt-7 mb-3">
@@ -211,19 +195,25 @@ const AllProjects: React.FC = () => {
             </PinContainer>
           </div>
         ))}
-      </div>
-
-      {allProjects.length < totalCount && ( // Show button if there are more projects
+      </div>{" "}
+      {error && <div className="text-red-500 text-center">{error}</div>}{" "}
+      {/* Display error message */}{" "}
+      {projects.length === 0 && !isLoading && !error && (
+        <div className="text-center text-gray-500">
+          No projects found for this category. Please try a different one.
+        </div>
+      )}
+      {projects.length > 0 && projects.length % limit === 0 && (
         <div className="flex justify-center mt-6">
           <button
-            onClick={() => setCurrentPage((prev) => prev + 1)} // Increment page when button is clicked
+            onClick={handleSeeMore}
             className="px-4 py-2 bg-indigo-500 text-white rounded-md"
           >
             See More
           </button>
         </div>
       )}
-    </div>
+    </section>
   );
 };
 

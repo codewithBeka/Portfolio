@@ -1,4 +1,3 @@
-"use client";
 import { cn } from "@/lib/cs";
 import React, { useEffect, useRef } from "react";
 import { createNoise3D } from "simplex-noise";
@@ -228,21 +227,14 @@ export const Vortex = (props: VortexProps) => {
 
   useEffect(() => {
     setup();
-    const handleResize = () => {
+    window.addEventListener("resize", () => {
       const canvas = canvasRef.current;
       const ctx = canvas?.getContext("2d");
       if (canvas && ctx) {
         resize(canvas, ctx);
       }
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    // Cleanup event listener on unmount
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [setup, resize]); // Include setup and resize in dependencies
+    });
+  }, []);
 
   return (
     <div className={cn("relative h-full w-full", props.containerClassName)}>
